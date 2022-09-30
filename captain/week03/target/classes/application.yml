@@ -1,0 +1,37 @@
+# 访问端口
+server:
+  port: 8080
+spring:
+  # 数据连接池参数
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ssm?characterEncoding=utf8&useSSL=false
+    username: root
+    password: admin
+  # 日期格式设置
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  # 指定前端发送过来的数据转换为日期的格式
+  mvc:
+    format:
+      date: yyyy-MM-dd HH:mm:ss
+
+# 日志输出级别
+logging:
+  level:
+    com.woniu: debug
+# mybatis-plus
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # 指定mapper映射文件的目录 classpath* : 表示可以读取到本工程及其依赖的工程的资源目录
+  mapper-locations: classpath*:mapper/*.xml
+
+
+# 配置七牛云账号信息
+qiNiu:
+  accesskey: JWeSqkdI_Dz68JSsea0GlmaJZmDSfE_LqWnHoYDC
+  secretkey: 2jj7H0TxfqQDvS61K-ObdJ6TBmu7laQN-am3_MvG
+  bucket: harset
+

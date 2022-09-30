@@ -1,0 +1,139 @@
+<template>
+  <div id="app-container">
+    <!--条件查询表单-->
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item>
+        <el-input v-model="brandVo.name" placeholder="品牌名"/>
+      </el-form-item>
+      <!-- <el-form-item>
+          <el-select v-model="trainerQuery.level" clearable placeholder="讲师头衔">
+              <el-option :value="1" label="高级讲师"/>
+              <el-option :value="2" label="首席讲师"/>
+          </el-select>
+      </el-form-item> -->
+      <el-form-item>
+        <el-input v-model="brandVo.letter" placeholder="品牌首字母"/>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="brandVo.parentId" placeholder="品牌名"/>
+      </el-form-item>
+      <el-button type="primary" icon="el-icon-search" @click="getList(-1)">查询</el-button>
+      <el-button type="default" @click="resetData()">清空</el-button>
+
+      <!--当我们点击添加培训师的按钮时，应该要跳转到 /trainer/add 这个路由地址-->
+      <router-link to="/brand/add">
+        <el-button type="primary">添加品牌</el-button>
+      </router-link>
+    </el-form>
+
+    <!--数据显示列表-->
+    <el-table :data="dataList" fit highlight-current-row>
+      <el-table-column type="index" label="序号" width="70">
+        <template slot-scope="scope">
+          {{pageSize * (currentPage - 1) + scope.$index + 1 }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="name" label="品牌名称" width="80" ></el-table-column>
+      <el-table-column prop="letter" label="品牌首字母" width="80" ></el-table-column>
+      <el-table-column prop="parentId" label="父品牌id" ></el-table-column>
+      <el-table-column prop="image" label="品牌图片" width="160"></el-table-column>
+      <el-table-column prop="sort" label="排序" width="60" ></el-table-column>
+      <el-table-column label="操作" width="200">
+        <template slot-scope="scope">
+
+          <router-link :to="'/brand/edit/' + scope.row.id">
+            <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
+          </router-link>
+
+          <el-button type="danger" size="mini" icon="el-icon-delete" @click="handleRemove(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-sizes="[1, 2, 3, 5]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+
+  </div>
+</template>
+<script>
+// 导入brand api
+import brand from '../../api/brand'
+  export default {
+    // 必须使用方法，需要给返回值
+    data(){
+      return {
+        brandVo: {},             // 搜索的数据模型对象
+        currentPage: 1,                 // 当前页
+        pageSize: 2,                    // 每页记录数
+        dataList: [],                   // 分页数据
+        total: 0,                       // 总记录数
+      }
+    },
+    created(){
+      this.getList();
+    },
+    methods:{
+      // 页面初始化查询数据
+      getList(value){
+
+        if(value == -1){
+          // 点击搜索之后应该从第一页开始查询
+          this.currentPage = 1;
+        }
+
+        // 此处应该调用api里面的相关方法 getList
+        brand.getList(this.currentPage, this.pageSize, this.brandVo).then(res => {
+          // 以前要获取响应的数据  res.data  拿到的此时result对象
+          // 此处 res就是result对象
+          console.log(res);
+          // 将查询出来的分页数据赋值给数据模型
+          this.dataList = res.data.data;
+          this.total = res.data.total;
+        });
+      },
+      // 每页记录数发生变化
+      handleSizeChange(size){
+        this.pageSize = size;
+        this.getList();
+      },
+      // 当前页发生变化
+      handleCurrentChange(current){
+        this.currentPage = current;
+        this.getList();
+      },
+      // 清空数据
+      resetData(){
+        // 清空搜索的内容
+        this.brandVo = {};
+        // 重新查询数据
+        this.getList();
+      },
+      // 删除数据
+      handleRemove(id){
+        this.$confirm("是否确定删除数据？", "提示", {type: 'warning'})
+          .then(() => {
+            // 表示点击了确定
+            brand.remove(id).then(res => {
+              // 此处我要不要考虑失败的情况
+              // 弹出成功的提示信息
+              this.$message.success(res.message);
+              // 重新加载数据
+              this.getList();
+            });
+          })
+          .catch(() => {
+            // 表示点击了取消
+            this.$message.info("取消删除操作");
+          });
+      },
+
+    }
+  }
+</script>
